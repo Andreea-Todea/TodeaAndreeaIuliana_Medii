@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TodeaAndreeaIuliana_Medii.Data;
 using TodeaAndreeaIuliana_Medii.Models;
 
-namespace TodeaAndreeaIuliana_Medii.Pages.Hotels
+namespace TodeaAndreeaIuliana_Medii.Pages.Members
 {
     public class IndexModel : PageModel
     {
@@ -20,18 +19,13 @@ namespace TodeaAndreeaIuliana_Medii.Pages.Hotels
             _context = context;
         }
 
-        public IList<Hotel> Hotel { get; set; } = default!;
+        public IList<Member> Member { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
-            if (_context.Hotel != null)
+            if (_context.Member != null)
             {
-                Hotel = await _context.Hotel
-
-               .Include(b => b.Country)
-               .Include(b => b.HotelCategories)
-
-                    .ToListAsync();
+                Member = await _context.Member.ToListAsync();
             }
         }
     }

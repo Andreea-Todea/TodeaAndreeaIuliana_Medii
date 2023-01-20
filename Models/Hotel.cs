@@ -11,5 +11,6 @@ namespace TodeaAndreeaIuliana_Medii.Models
         public decimal Price { get; set; }
         public int? CountryID { get; set; }
         public Country? Country { get; set; }
+        public ICollection<HotelCategory>? HotelCategories { get; set; }
     }
 }

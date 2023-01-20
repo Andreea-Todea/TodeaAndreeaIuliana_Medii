@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Policy;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +14,7 @@ using TodeaAndreeaIuliana_Medii.Models;
 
 namespace TodeaAndreeaIuliana_Medii.Pages.Hotels
 {
-    public class EditModel : PageModel
+    public class EditModel : HotelCategoriesPageModel
     {
         private readonly TodeaAndreeaIuliana_Medii.Data.TodeaAndreeaIuliana_MediiContext _context;
 
@@ -20,6 +22,7 @@ namespace TodeaAndreeaIuliana_Medii.Pages.Hotels
         {
             _context = context;
         }
+
 
         [BindProperty]
         public Hotel Hotel { get; set; } = default!;
@@ -31,50 +34,64 @@ namespace TodeaAndreeaIuliana_Medii.Pages.Hotels
                 return NotFound();
             }
 
-            var hotel =  await _context.Hotel.FirstOrDefaultAsync(m => m.ID == id);
+            var hotel = await _context.Hotel
+
+            .Include(b => b.Country)
+            .Include(b => b.HotelCategories).ThenInclude(b => b.Category)
+             .AsNoTracking()
+             .FirstOrDefaultAsync(m => m.ID == id);
             if (hotel == null)
             {
                 return NotFound();
             }
-            ViewData["CountryID"] = new SelectList(_context.Set<Country>(), "ID",
-"CountryName");
+            PopulateAssignedCategoryData(_context, Hotel);
             Hotel = hotel;
+            ViewData["CountryID"] = new SelectList(_context.Set<Country>(), "ID", "CountryName");
             return Page();
         }
 
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? id, string[] selectedCategories)
         {
-            if (!ModelState.IsValid)
+            if (id == null)
             {
-                return Page();
+                return NotFound();
             }
 
-            _context.Attach(Hotel).State = EntityState.Modified;
-
-            try
+            var hotelToUpdate = await _context.Hotel
+            .Include(i => i.Country)
+            .Include(i => i.HotelCategories)
+            .ThenInclude(i => i.Category)
+            .FirstOrDefaultAsync(s => s.ID == id);
+            if (hotelToUpdate == null)
             {
+                return NotFound();
+            }
+
+            if (await TryUpdateModelAsync<Hotel>(
+           hotelToUpdate,
+            "Hotel",
+            i => i.Name, i => i.Price,
+            i => i.RoomNumbers, i => i.CountryID, i => i.Location))
+            {
+                UpdateHotelCategories(_context, selectedCategories, hotelToUpdate);
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!HotelExists(Hotel.ID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return RedirectToPage("./Index");
             }
 
-            return RedirectToPage("./Index");
+            UpdateHotelCategories(_context, selectedCategories, hotelToUpdate);
+            PopulateAssignedCategoryData(_context, hotelToUpdate);
+            return Page();
         }
-
         private bool HotelExists(int id)
         {
-          return _context.Hotel.Any(e => e.ID == id);
+            return _context.Hotel.Any(e => e.ID == id);
         }
     }
 }
+
+
+
+
+

@@ -28,6 +28,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Hotel[0].Country.CountryName)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Hotel[0].HotelCategories)
+            </th>
 
             <th></th>
         </tr>
@@ -49,6 +52,9 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Country.CountryName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HotelCategories)
                 </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |

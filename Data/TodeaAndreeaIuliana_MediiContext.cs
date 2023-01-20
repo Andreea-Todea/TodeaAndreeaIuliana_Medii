@@ -17,5 +17,9 @@ namespace TodeaAndreeaIuliana_Medii.Data
         public DbSet<TodeaAndreeaIuliana_Medii.Models.Hotel> Hotel { get; set; } = default!;
 
         public DbSet<TodeaAndreeaIuliana_Medii.Models.Country> Country { get; set; }
+
+        public DbSet<TodeaAndreeaIuliana_Medii.Models.Category> Category { get; set; }
+
+        public DbSet<TodeaAndreeaIuliana_Medii.Models.Member> Member { get; set; }
     }
 }
